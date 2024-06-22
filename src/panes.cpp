@@ -26,7 +26,14 @@ along with this program.
 #include "mdl.h"
 #include "pak.h"
 #include "resources.h"
-#include "unistd.h"
+
+#ifdef _WIN32
+#include <io.h>
+#define access _access
+#else
+#include <unistd.h>
+#endif
+
 #include "util.h"
 #include <cstdint>
 #include <cstdio>
@@ -96,8 +103,7 @@ void DrawMenuBar() {
 			if (ImGui::MenuItem("Containing Folder", NULL, false, newEnabled) &&
 				!baseDirectory.empty()) {
 #ifdef _WIN32
-				ShellExecute(NULL, L"open", baseDirectory.c_str(), NULL, NULL,
-							 SW_SHOWDEFAULT);
+				// PMC // ShellExecute(NULL, L"open", baseDirectory.c_str(), NULL, NULL, SW_SHOWDEFAULT);
 #else
 				std::string command = "xdg-open " + baseDirectory.string();
 				system(command.c_str());
@@ -133,10 +139,12 @@ void DrawMenuBar() {
 		if (ImGui::BeginMenu("Help")) {
 			if (ImGui::MenuItem("Documentation")) {
 #ifdef _WIN32
+				/*** PMC ***
 				ShellExecute(0, 0,
 							 L"https://github.com/BanceDev/QuakePrism/blob/"
 							 L"main/docs/MANUAL.md",
 							 0, 0, SW_SHOW);
+				***/
 #else
 				system("xdg-open "
 					   "https://github.com/BanceDev/QuakePrism/blob/main/docs/"
@@ -298,7 +306,7 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 
 	texImportBrowser.Display();
 	if (texImportBrowser.HasSelected()) {
-		std::filesystem::path texturePath = texImportBrowser.GetSelected();
+		std::experimental::filesystem::path texturePath = texImportBrowser.GetSelected();
 		if (!MDL::mdlTextureImport(texturePath, currentModelName)) {
 			isErrorOpen = true;
 			userError = LOAD_FAILED;
@@ -340,22 +348,22 @@ void DrawDebugConsole() {
 	static std::string consoleText = "";
 	if (isCompiling) {
 		consoleText.clear();
-		chdir((baseDirectory / "src").string().c_str());
+		// PMC // chdir((baseDirectory / "src").string().c_str());
 #ifdef _WIN32
 		std::string command = "./fteqcc64.exe 2>&1";
 #else
 		std::string command = "./fteqcc64 2>&1";
 #endif
 
-		FILE *pipe = popen(command.c_str(), "r");
+		FILE *pipe = 0; // PMC popen(command.c_str(), "r");
 		if (!pipe)
 			return;
 		char buffer[128];
 		while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
 			consoleText += buffer;
 		}
-		pclose(pipe);
-		chdir(baseDirectory.string().c_str());
+		// PMC pclose(pipe);
+		// PMC chdir(baseDirectory.string().c_str());
 		isCompiling = false;
 	}
 	ImGui::TextUnformatted(consoleText.c_str());
@@ -364,7 +372,7 @@ void DrawDebugConsole() {
 }
 
 static void SaveQuakeCFile(std::string textToSave,
-						   const std::filesystem::path &currentFile) {
+						   const std::experimental::filesystem::path &currentFile) {
 	// had issue with extra whitespace so this cleans that
 	size_t end = textToSave.find_last_not_of(" \t\n\r");
 	if (end == std::string::npos) {
@@ -392,7 +400,7 @@ void SaveFromEditor(TextEditor *editor) {
 }
 
 static void DrawTextTab(TextEditor &editor,
-						const std::filesystem::path &currentFile,
+						const std::experimental::filesystem::path &currentFile,
 						bool &tabOpen) {
 	auto lang = TextEditor::LanguageDefinition::QuakeC();
 	editor.SetLanguageDefinition(lang);
@@ -516,18 +524,18 @@ void DrawTextEditor() {
 	DrawDebugConsole();
 }
 
-static bool AlphabeticalComparator(const std::filesystem::directory_entry &a,
-								   const std::filesystem::directory_entry &b) {
+static bool AlphabeticalComparator(const std::experimental::filesystem::directory_entry &a,
+								   const std::experimental::filesystem::directory_entry &b) {
 	return a.path().filename().string() < b.path().filename().string();
 }
 
-void DrawFileTree(const std::filesystem::path &currentPath) {
+void DrawFileTree(const std::experimental::filesystem::path &currentPath) {
 	if (!currentPath.empty()) {
-		std::vector<std::filesystem::directory_entry> directoryEntries;
+		std::vector<std::experimental::filesystem::directory_entry> directoryEntries;
 
 		// Collect all entries (both directories and files) in the current path
 		for (auto &directoryEntry :
-			 std::filesystem::directory_iterator(currentPath)) {
+			 std::experimental::filesystem::directory_iterator(currentPath)) {
 			directoryEntries.push_back(directoryEntry);
 		}
 
@@ -536,11 +544,11 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 				  AlphabeticalComparator);
 
 		// Separate directories and files
-		std::vector<std::filesystem::directory_entry> directories;
-		std::vector<std::filesystem::directory_entry> files;
+		std::vector<std::experimental::filesystem::directory_entry> directories;
+		std::vector<std::experimental::filesystem::directory_entry> files;
 
 		for (const auto &entry : directoryEntries) {
-			if (entry.is_directory()) {
+			if (false) { // PMC entry.is_directory()) {
 				directories.push_back(entry);
 			} else {
 				files.push_back(entry);
@@ -561,6 +569,7 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 			ImGui::PushID(filenameString.c_str());
 			GLuint icon;
 
+			/*** PMC ***
 			if (directoryEntry.is_directory()) {
 				icon = directoryIcon;
 			} else {
@@ -572,6 +581,7 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 					icon = fileIcon;
 				}
 			}
+			***/
 
 			bool node_open =
 				QuakePrism::ImageTreeNode(filenameString.c_str(), icon);
@@ -589,11 +599,11 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 						std::string originalExtension =
 							path.extension().string();
 						// Append the original file extension to the new name
-						std::filesystem::path newPath =
+						std::experimental::filesystem::path newPath =
 							path.parent_path() /
 							(std::string(rename) + originalExtension);
 						// Perform rename operation
-						std::filesystem::rename(path, newPath);
+						std::experimental::filesystem::rename(path, newPath);
 						// Clear rename input
 						rename[0] = '\0';
 						ImGui::CloseCurrentPopup();
@@ -601,7 +611,7 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 					ImGui::EndMenu();
 				}
 				if (ImGui::MenuItem("Delete")) {
-					std::filesystem::remove(path);
+					std::experimental::filesystem::remove(path);
 				}
 				ImGui::EndPopup();
 			}
@@ -655,9 +665,11 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 			}
 
 			if (node_open) {
+				/*** PMC ***
 				if (directoryEntry.is_directory()) {
 					DrawFileTree(directoryEntry.path());
 				}
+				***/
 				ImGui::TreePop();
 			}
 
@@ -738,15 +750,17 @@ void DrawOpenProjectPopup() {
 	ImGui::OpenPopup("Open Project");
 	isOpenProjectOpen = ImGui::BeginPopupModal(
 		"Open Project", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-	std::vector<std::filesystem::directory_entry> projectList;
+	std::vector<std::experimental::filesystem::directory_entry> projectList;
 	if (isOpenProjectOpen) {
 		try {
 			for (auto &directoryEntry :
-				 std::filesystem::directory_iterator(projectsDirectory)) {
+				 std::experimental::filesystem::directory_iterator(projectsDirectory)) {
+				/*** PMC ***
 				if (directoryEntry.is_directory())
 					projectList.push_back(directoryEntry);
+				***/
 			}
-		} catch (const std::filesystem::filesystem_error &ex) {
+		} catch (const std::experimental::filesystem::filesystem_error &ex) {
 			isErrorOpen = true;
 			isOpenProjectOpen = false;
 			userError = MISSING_PROJECTS;
@@ -792,39 +806,43 @@ void DrawOpenProjectPopup() {
 	}
 }
 
-static bool CopyTemplate(const std::filesystem::path &source,
+static bool CopyTemplate(const std::experimental::filesystem::path &source,
 						 const char *projectName) {
-	std::filesystem::path destination = projectsDirectory / projectName;
+	std::experimental::filesystem::path destination = projectsDirectory / projectName;
 	try {
 		// Check if the source directory exists
-		if (!std::filesystem::exists(source) ||
-			!std::filesystem::is_directory(source)) {
+		if (!std::experimental::filesystem::exists(source) ||
+			!std::experimental::filesystem::is_directory(source)) {
 			return false;
 		}
 
 		// Create the destination directory if it does not exist
-		if (!std::filesystem::exists(destination)) {
-			std::filesystem::create_directory(destination);
+		if (!std::experimental::filesystem::exists(destination)) {
+			std::experimental::filesystem::create_directory(destination);
 		}
 
 		// Iterate over the source directory and copy its contents
 		for (const auto &entry :
-			 std::filesystem::recursive_directory_iterator(source)) {
+			 std::experimental::filesystem::recursive_directory_iterator(source)) {
 			const auto &path = entry.path();
-			auto relative_path = std::filesystem::relative(path, source);
+			/*** PMC ***
+			auto relative_path = std::experimental::filesystem::relative(path, source);
 			auto dest = destination / relative_path;
+			***/
 
-			if (std::filesystem::is_directory(path)) {
-				std::filesystem::create_directories(dest);
-			} else if (std::filesystem::is_regular_file(path) ||
-					   std::filesystem::is_symlink(path)) {
-				std::filesystem::copy(
+			if (std::experimental::filesystem::is_directory(path)) {
+				// PMC // std::experimental::filesystem::create_directories(dest);
+			} else if (std::experimental::filesystem::is_regular_file(path) ||
+					   std::experimental::filesystem::is_symlink(path)) {
+				/*** PMC ***
+				std::experimental::filesystem::copy(
 					path, dest,
-					std::filesystem::copy_options::overwrite_existing);
+					std::experimental::filesystem::copy_options::overwrite_existing);
+				***/
 			}
 		}
 
-	} catch (const std::filesystem::filesystem_error &e) {
+	} catch (const std::experimental::filesystem::filesystem_error &e) {
 		return false;
 	} catch (const std::exception &e) {
 		return false;
@@ -838,7 +856,7 @@ void DrawNewProjectPopup() {
 		return;
 
 	// These variables only used by the second case
-	static std::vector<std::filesystem::path> paks;
+	static std::vector<std::experimental::filesystem::path> paks;
 	static int codebaseType = 0;
 
 	ImGui::OpenPopup("New Project");
@@ -900,7 +918,7 @@ void DrawNewProjectPopup() {
 			if (ImGui::Button("Make Project") && strcmp(projectName, "") != 0) {
 				switch (projectType) {
 				case 1: {
-					std::filesystem::path blankDir =
+					std::experimental::filesystem::path blankDir =
 						executingDirectory / "res/templates/Blank";
 					if (!CopyTemplate(blankDir, projectName)) {
 						userError = MISSING_PROJECTS;
@@ -909,12 +927,12 @@ void DrawNewProjectPopup() {
 					break;
 				}
 				case 2: {
-					std::filesystem::path projectPath =
+					std::experimental::filesystem::path projectPath =
 						projectsDirectory / projectName;
 
 					// Create the destination directory if it does not exist
-					if (!std::filesystem::exists(projectPath)) {
-						std::filesystem::create_directory(projectPath);
+					if (!std::experimental::filesystem::exists(projectPath)) {
+						std::experimental::filesystem::create_directory(projectPath);
 					}
 
 					for (const auto &pak : paks) {
@@ -925,21 +943,21 @@ void DrawNewProjectPopup() {
 						}
 					}
 
-					if (!std::filesystem::exists(projectPath / "src")) {
-						std::filesystem::create_directory(projectPath / "src");
+					if (!std::experimental::filesystem::exists(projectPath / "src")) {
+						std::experimental::filesystem::create_directory(projectPath / "src");
 					}
 
 					std::string srcDir = projectName;
 					srcDir += "/src";
 					if (codebaseType == 0) {
-						std::filesystem::path quakeCodebase =
+						std::experimental::filesystem::path quakeCodebase =
 							executingDirectory / "res/templates/Id1/src";
 						if (!CopyTemplate(quakeCodebase, srcDir.c_str())) {
 							userError = MISSING_PROJECTS;
 							isErrorOpen = true;
 						}
 					} else {
-						std::filesystem::path blankCodebase =
+						std::experimental::filesystem::path blankCodebase =
 							executingDirectory / "res/templates/Blank/src";
 						if (!CopyTemplate(blankCodebase, srcDir.c_str())) {
 							userError = MISSING_PROJECTS;
@@ -950,7 +968,7 @@ void DrawNewProjectPopup() {
 					break;
 				}
 				case 3: {
-					std::filesystem::path libreQuakeDir =
+					std::experimental::filesystem::path libreQuakeDir =
 						executingDirectory / "res/templates/LibreQuake";
 					if (!CopyTemplate(libreQuakeDir, projectName)) {
 						userError = MISSING_PROJECTS;
@@ -1049,37 +1067,39 @@ void DrawLauncherPopup() {
 			out << projectsDirectory.string();
 			out.close();
 			// Create the projects directory if it does not exist
-			if (!std::filesystem::exists(projectsDirectory)) {
-				std::filesystem::create_directory(projectsDirectory);
+			if (!std::experimental::filesystem::exists(projectsDirectory)) {
+				std::experimental::filesystem::create_directory(projectsDirectory);
 			}
 
 			// Copy the correct executable into the projects directory
 #ifdef _WIN32
 			for (const auto &entry :
-				 std::filesystem::recursive_directory_iterator(
+				 std::experimental::filesystem::recursive_directory_iterator(
 					 executingDirectory / "res/templates/Windows")) {
 #else
 			for (const auto &entry :
-				 std::filesystem::recursive_directory_iterator(
+				 std::experimental::filesystem::recursive_directory_iterator(
 					 executingDirectory / "res/templates/Linux")) {
 #endif
 				const auto &path = entry.path();
 #ifdef _WIN32
-				auto relative_path = std::filesystem::relative(
+				/*** PMC ***
+				auto relative_path = std::experimental::filesystem::relative(
 					path, (executingDirectory / "res/templates/Windows"));
+				***/
 #else
-				auto relative_path = std::filesystem::relative(
+				auto relative_path = std::experimental::filesystem::relative(
 					path, (executingDirectory / "res/templates/Linux"));
 #endif
-				auto dest = projectsDirectory / relative_path;
+				auto dest = projectsDirectory; // PMC  / relative_path;
 
-				if (std::filesystem::is_directory(path)) {
-					std::filesystem::create_directories(dest);
-				} else if (std::filesystem::is_regular_file(path) ||
-						   std::filesystem::is_symlink(path)) {
-					std::filesystem::copy(
+				if (std::experimental::filesystem::is_directory(path)) {
+					std::experimental::filesystem::create_directories(dest);
+				} else if (std::experimental::filesystem::is_regular_file(path) ||
+						   std::experimental::filesystem::is_symlink(path)) {
+					std::experimental::filesystem::copy(
 						path, dest,
-						std::filesystem::copy_options::overwrite_existing);
+						std::experimental::filesystem::copy_options::overwrite_existing);
 				}
 			}
 

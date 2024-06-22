@@ -25,7 +25,14 @@ along with this program.
 #include <string.h>
 
 #include <sys/stat.h>
+
+#ifdef _WIN32
+#include <io.h>
+#define access _access
+#else
 #include <unistd.h>
+#endif
+
 #ifdef _WIN32
 #include <direct.h>
 #endif
@@ -193,8 +200,8 @@ void extract_files(FILE *fd, directory *dirs, int num_entries) {
 	}
 }
 
-bool ExtractPAK(const std::filesystem::path filename,
-				std::filesystem::path *out_dir) {
+bool ExtractPAK(const std::experimental::filesystem::path filename,
+				std::experimental::filesystem::path *out_dir) {
 	directory *d = NULL;
 	FILE *fd = NULL;
 	int list_only = 0;

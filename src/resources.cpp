@@ -51,16 +51,16 @@ GLuint libreCard;
 std::vector<TextEditor> editorList;
 
 // Config Files
-std::filesystem::path configFile =
-	std::filesystem::current_path() / "quakeprism.cfg";
-std::filesystem::path projectsDirectory;
+std::experimental::filesystem::path configFile =
+	std::experimental::filesystem::current_path() / "quakeprism.cfg";
+std::experimental::filesystem::path projectsDirectory;
 
 // Essential Paths
-std::vector<std::filesystem::path> currentQCFileNames;
-std::filesystem::path currentModelName;
-std::filesystem::path currentTextureName;
-std::filesystem::path baseDirectory;
-std::filesystem::path executingDirectory = std::filesystem::current_path();
+std::vector<std::experimental::filesystem::path> currentQCFileNames;
+std::experimental::filesystem::path currentModelName;
+std::experimental::filesystem::path currentTextureName;
+std::experimental::filesystem::path baseDirectory;
+std::experimental::filesystem::path executingDirectory = std::experimental::filesystem::current_path();
 
 void loadFonts() {
 	ImGuiIO &io = ImGui::GetIO();
@@ -106,7 +106,7 @@ void loadColormap() {
 }
 
 bool configFound() {
-	if (std::filesystem::exists(configFile)) {
+	if (std::experimental::filesystem::exists(configFile)) {
 		// Then if it does read in the first line since for now its just gonna
 		// be a one line file.
 		std::ifstream input(configFile);
@@ -118,9 +118,9 @@ bool configFound() {
 		}
 		input.close();
 
-		std::filesystem::path p(pd);
+		std::experimental::filesystem::path p(pd);
 		projectsDirectory = p;
-		return std::filesystem::exists(projectsDirectory);
+		return std::experimental::filesystem::exists(projectsDirectory);
 	}
 	return false;
 }

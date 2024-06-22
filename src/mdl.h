@@ -20,8 +20,8 @@ along with this program.
 #pragma once
 #include <GL/glew.h>
 #include <GL/glu.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
+#include "SDL.h"
+#include "SDL_opengl.h"
 #include <filesystem>
 
 typedef float vec3_t[3];
@@ -81,16 +81,16 @@ void RenderFrameItp(int n, float interp, const int mode,
 
 void Animate(int start, int end, int *frame, float *interp);
 
-bool mdlTextureImport(std::filesystem::path texturePath,
-					  std::filesystem::path modelPath);
+bool mdlTextureImport(std::experimental::filesystem::path texturePath,
+					  std::experimental::filesystem::path modelPath);
 
-bool mdlTextureExport(std::filesystem::path modelPath);
+bool mdlTextureExport(std::experimental::filesystem::path modelPath);
 
 void cleanup();
 
 void reshape(int w, int h);
 
-void render(const std::filesystem::path modelPath, const int mode,
+void render(const std::experimental::filesystem::path modelPath, const int mode,
 			const bool paused, const bool lerpEnabled,
 			const bool filteringEnabled);
 } // namespace QuakePrism::MDL

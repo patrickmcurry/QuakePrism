@@ -48,7 +48,7 @@ void extract_raw(FILE *in, directory *d);
 
 void extract_files(FILE *fd, directory *dirs, int num_entries);
 
-bool ExtractPAK(const std::filesystem::path filename,
-				std::filesystem::path *out_dir);
+bool ExtractPAK(const std::experimental::filesystem::path filename,
+				std::experimental::filesystem::path *out_dir);
 
 } // namespace QuakePrism::PAK

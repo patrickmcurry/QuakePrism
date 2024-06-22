@@ -20,10 +20,11 @@ along with this program.
 #pragma once
 #include "TextEditor.h"
 #include "imgui.h"
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
+#include "SDL.h"
+#include "SDL_opengl.h"
 #include <filesystem>
 #include <vector>
+#include "imfilebrowser.h"
 
 namespace QuakePrism {
 // Font Assets
@@ -50,15 +51,15 @@ extern GLuint libreCard;
 extern std::vector<TextEditor> editorList;
 
 // Config Assets
-extern std::filesystem::path configFile;
-extern std::filesystem::path projectsDirectory;
+extern std::experimental::filesystem::path configFile;
+extern std::experimental::filesystem::path projectsDirectory;
 
 // Essential Paths
-extern std::vector<std::filesystem::path> currentQCFileNames;
-extern std::filesystem::path currentModelName;
-extern std::filesystem::path currentTextureName;
-extern std::filesystem::path baseDirectory;
-extern std::filesystem::path executingDirectory;
+extern std::vector<std::experimental::filesystem::path> currentQCFileNames;
+extern std::experimental::filesystem::path currentModelName;
+extern std::experimental::filesystem::path currentTextureName;
+extern std::experimental::filesystem::path baseDirectory;
+extern std::experimental::filesystem::path executingDirectory;
 
 void loadIcons();
 

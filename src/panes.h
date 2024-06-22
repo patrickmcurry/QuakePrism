@@ -19,8 +19,8 @@ along with this program.
 #pragma once
 #include "TextEditor.h"
 #include <GL/glew.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
+#include "SDL.h"
+#include "SDL_opengl.h"
 #include <filesystem>
 
 namespace QuakePrism {
@@ -39,7 +39,7 @@ void DrawErrorPopup();
 
 void DrawAboutPopup();
 
-void DrawFileTree(const std::filesystem::path &currentPath);
+void DrawFileTree(const std::experimental::filesystem::path &currentPath);
 
 void DrawFileExplorer();
 

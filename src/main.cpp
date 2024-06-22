@@ -25,12 +25,12 @@ along with this program.
 #include "panes.h"
 #include "resources.h"
 #include "theme.h"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <stdio.h>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <SDL_opengles2.h>
 #else
-#include <SDL2/SDL_opengl.h>
+#include <SDL_opengl.h>
 #endif
 
 // This example can also compile and run with Emscripten! See

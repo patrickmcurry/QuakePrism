@@ -37,6 +37,8 @@ Clone the repo recursively to install imgui dependencies
 ```
 git clone --recursive
 ```
+If you clone without the `--recursive`, you can run `git submodule update --init` from the project root directory to download the submodules.
+
 Other dependencies include sld2, glew, and glm. These can either be installed using the packagage manager for your respective Linux distro, or if you are on windows by downloading the installers for those libraries.
 Run the make command in the QuakePrism directory and it will output to a build directory. The makefile currently supports Linux fully, for Windows developers it is reccomended to use the Visual Studio project instead.
 

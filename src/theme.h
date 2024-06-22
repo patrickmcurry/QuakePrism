@@ -20,7 +20,7 @@ along with this program.
 #pragma once
 
 #include <algorithm>
-#include <glm/glm.hpp>
+#include <glm.hpp>
 #include <imgui.h>
 
 namespace QuakePrism {

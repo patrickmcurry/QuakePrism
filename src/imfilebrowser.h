@@ -8,8 +8,11 @@
 #include <memory>
 #include <set>
 #include <string>
-#include <string_view>
+#include "string_view.hpp"
 #include <vector>
+
+using namespace nonstd::literals;
+using namespace nonstd;
 
 #ifndef IMGUI_VERSION
 #error "include imgui.h before this header"
@@ -80,20 +83,20 @@ class FileBrowser {
 
 	// set current browsing directory
 	bool
-	SetPwd(const std::filesystem::path &pwd = std::filesystem::current_path());
+	SetPwd(const std::experimental::filesystem::path &pwd = std::experimental::filesystem::current_path());
 
 	// get current browsing directory
-	const std::filesystem::path &GetPwd() const noexcept;
+	const std::experimental::filesystem::path &GetPwd() const noexcept;
 
 	// returns selected filename. make sense only when HasSelected returns true
 	// when ImGuiFileBrowserFlags_MultipleSelection is enabled, only one of
 	// selected filename will be returned
-	std::filesystem::path GetSelected() const;
+	std::experimental::filesystem::path GetSelected() const;
 
 	// returns all selected filenames.
 	// when ImGuiFileBrowserFlags_MultipleSelection is enabled, use this
 	// instead of GetSelected
-	std::vector<std::filesystem::path> GetMultiSelected() const;
+	std::vector<std::experimental::filesystem::path> GetMultiSelected() const;
 
 	// set selected filename to empty
 	void ClearSelected();
@@ -108,7 +111,7 @@ class FileBrowser {
 
 	// when ImGuiFileBrowserFlags_EnterNewFilename is set
 	// this function will pre-fill the input dialog with a filename.
-	void SetInputName(std::string_view input);
+	void SetInputName(string_view input);
 
   private:
 	template <class Functor> struct ScopeGuard {
@@ -122,18 +125,18 @@ class FileBrowser {
 
 	struct FileRecord {
 		bool isDir = false;
-		std::filesystem::path name;
+		std::experimental::filesystem::path name;
 		std::string showName;
-		std::filesystem::path extension;
+		std::experimental::filesystem::path extension;
 	};
 
 	static std::string ToLower(const std::string &s);
 
 	void UpdateFileRecords();
 
-	void SetPwdUncatched(const std::filesystem::path &pwd);
+	void SetPwdUncatched(const std::experimental::filesystem::path &pwd);
 
-	bool IsExtensionMatched(const std::filesystem::path &extension) const;
+	bool IsExtensionMatched(const std::experimental::filesystem::path &extension) const;
 
 	void ClearRangeSelectionState();
 
@@ -169,8 +172,8 @@ class FileBrowser {
 	unsigned int typeFilterIndex_;
 	bool hasAllFilter_;
 
-	std::filesystem::path pwd_;
-	std::set<std::filesystem::path> selectedFilenames_;
+	std::experimental::filesystem::path pwd_;
+	std::set<std::experimental::filesystem::path> selectedFilenames_;
 	unsigned int
 		rangeSelectionStart_; // enable range selection when shift is pressed
 
@@ -203,7 +206,7 @@ inline ImGui::FileBrowser::FileBrowser(ImGuiFileBrowserFlags flags)
 	inputNameBuf_->front() = '\0';
 	inputNameBuf_->back() = '\0';
 	SetTitle("Open Project Directory");
-	SetPwd(std::filesystem::current_path());
+	SetPwd(std::experimental::filesystem::current_path());
 
 	typeFilters_.clear();
 	typeFilterIndex_ = 0;
@@ -302,6 +305,7 @@ inline void ImGui::FileBrowser::Close() {
 inline bool ImGui::FileBrowser::IsOpened() const noexcept { return isOpened_; }
 
 inline void ImGui::FileBrowser::Display() {
+	/*** PMC ***
 	PushID(this);
 	ScopeGuard exitThis([this] {
 		openFlag_ = false;
@@ -400,7 +404,7 @@ inline void ImGui::FileBrowser::Display() {
 
 	if (newPwdLastSecIdx >= 0) {
 		int i = 0;
-		std::filesystem::path newPwd;
+		std::experimental::filesystem::path newPwd;
 		for (const auto &sec : pwd_) {
 			if (i++ > newPwdLastSecIdx) {
 				break;
@@ -422,7 +426,7 @@ inline void ImGui::FileBrowser::Display() {
 	if (SmallButton("*")) {
 		UpdateFileRecords();
 
-		std::set<std::filesystem::path> newSelectedFilenames;
+		std::set<std::experimental::filesystem::path> newSelectedFilenames;
 		for (auto &name : selectedFilenames_) {
 			auto it = std::find_if(
 				fileRecords_.begin(), fileRecords_.end(),
@@ -467,7 +471,7 @@ inline void ImGui::FileBrowser::Display() {
 	// browse files in a child window
 
 	float reserveHeight = GetFrameHeightWithSpacing();
-	std::filesystem::path newPwd;
+	std::experimental::filesystem::path newPwd;
 	bool setNewPwd = false;
 	if (!(flags_ & ImGuiFileBrowserFlags_SelectDirectory) &&
 		(flags_ & ImGuiFileBrowserFlags_EnterNewFilename))
@@ -659,11 +663,12 @@ inline void ImGui::FileBrowser::Display() {
 		}
 		PopItemWidth();
 	}
+	***/
 }
 
 inline bool ImGui::FileBrowser::HasSelected() const noexcept { return ok_; }
 
-inline bool ImGui::FileBrowser::SetPwd(const std::filesystem::path &pwd) {
+inline bool ImGui::FileBrowser::SetPwd(const std::experimental::filesystem::path &pwd) {
 	try {
 		SetPwdUncatched(pwd);
 		return true;
@@ -673,16 +678,16 @@ inline bool ImGui::FileBrowser::SetPwd(const std::filesystem::path &pwd) {
 		statusStr_ = "last error: unknown";
 	}
 
-	SetPwdUncatched(std::filesystem::current_path());
+	SetPwdUncatched(std::experimental::filesystem::current_path());
 	return false;
 }
 
-inline const class std::filesystem::path &
+inline const class std::experimental::filesystem::path &
 ImGui::FileBrowser::GetPwd() const noexcept {
 	return pwd_;
 }
 
-inline std::filesystem::path ImGui::FileBrowser::GetSelected() const {
+inline std::experimental::filesystem::path ImGui::FileBrowser::GetSelected() const {
 	// when ok_ is true, selectedFilenames_ may be empty if SelectDirectory
 	// is enabled. return pwd in that case.
 	if (selectedFilenames_.empty()) {
@@ -691,13 +696,13 @@ inline std::filesystem::path ImGui::FileBrowser::GetSelected() const {
 	return pwd_ / *selectedFilenames_.begin();
 }
 
-inline std::vector<std::filesystem::path>
+inline std::vector<std::experimental::filesystem::path>
 ImGui::FileBrowser::GetMultiSelected() const {
 	if (selectedFilenames_.empty()) {
 		return {pwd_};
 	}
 
-	std::vector<std::filesystem::path> ret;
+	std::vector<std::experimental::filesystem::path> ret;
 	ret.reserve(selectedFilenames_.size());
 	for (auto &s : selectedFilenames_) {
 		ret.push_back(pwd_ / s);
@@ -742,7 +747,7 @@ inline void ImGui::FileBrowser::SetTypeFilters(
 		hasAllFilter_ = true;
 		std::string allFiltersName = std::string();
 		for (size_t i = 0; i < typeFilters.size(); ++i) {
-			if (typeFilters[i] == std::string_view(".*")) {
+			if (typeFilters[i] == string_view(".*")) {
 				hasAllFilter_ = false;
 				break;
 			}
@@ -768,7 +773,7 @@ inline void ImGui::FileBrowser::SetCurrentTypeFilterIndex(int index) {
 	typeFilterIndex_ = static_cast<unsigned int>(index);
 }
 
-inline void ImGui::FileBrowser::SetInputName(std::string_view input) {
+inline void ImGui::FileBrowser::SetInputName(string_view input) {
 	if (flags_ & ImGuiFileBrowserFlags_EnterNewFilename) {
 		if (input.size() >= static_cast<size_t>(INPUT_NAME_BUF_SIZE)) {
 			// If input doesn't fit trim off characters
@@ -789,9 +794,10 @@ inline std::string ImGui::FileBrowser::ToLower(const std::string &s) {
 }
 
 inline void ImGui::FileBrowser::UpdateFileRecords() {
+	/*** PMC ***
 	fileRecords_ = {FileRecord{true, "..", "[D] ..", ""}};
 
-	for (auto &p : std::filesystem::directory_iterator(pwd_)) {
+	for (auto &p : std::experimental::filesystem::directory_iterator(pwd_)) {
 		FileRecord rcd;
 
 		if (p.is_regular_file()) {
@@ -821,10 +827,11 @@ inline void ImGui::FileBrowser::UpdateFileRecords() {
 			  });
 
 	ClearRangeSelectionState();
+	***/
 }
 
 inline void
-ImGui::FileBrowser::SetPwdUncatched(const std::filesystem::path &pwd) {
+ImGui::FileBrowser::SetPwdUncatched(const std::experimental::filesystem::path &pwd) {
 	pwd_ = absolute(pwd);
 	UpdateFileRecords();
 	selectedFilenames_.clear();
@@ -832,9 +839,9 @@ ImGui::FileBrowser::SetPwdUncatched(const std::filesystem::path &pwd) {
 }
 
 inline bool ImGui::FileBrowser::IsExtensionMatched(
-	const std::filesystem::path &_extension) const {
+	const std::experimental::filesystem::path &_extension) const {
 #ifdef _WIN32
-	std::filesystem::path extension =
+	std::experimental::filesystem::path extension =
 		ToLower(u8StrToStr(_extension.u8string()));
 #else
 	auto &extension = _extension;
@@ -861,7 +868,7 @@ inline bool ImGui::FileBrowser::IsExtensionMatched(
 	}
 
 	// universal filter
-	if (typeFilters_[typeFilterIndex_] == std::string_view(".*")) {
+	if (typeFilters_[typeFilterIndex_] == string_view(".*")) {
 		return true;
 	}
 

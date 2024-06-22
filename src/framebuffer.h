@@ -19,8 +19,8 @@ along with this program.
 
 #pragma once
 #include <GL/glew.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
+#include <SDL.h>
+#include <SDL_opengl.h>
 
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480

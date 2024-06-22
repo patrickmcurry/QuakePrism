@@ -182,7 +182,7 @@ float colorDistance(const GLubyte *color1, const unsigned char *color2) {
 }
 
 int findClosestColorIndex(const GLubyte *color) {
-	float minDistance = std::numeric_limits<float>::max();
+	float minDistance = 0; // PMC = std::numeric_limits<float>::max();
 	int closestIndex = 0;
 
 	for (int i = 0; i < 256; ++i) {
@@ -602,13 +602,13 @@ void Animate(int start, int end, int *frame, float *interp) {
 	}
 }
 
-bool mdlTextureImport(std::filesystem::path texturePath,
-					  std::filesystem::path modelPath) {
+bool mdlTextureImport(std::experimental::filesystem::path texturePath,
+					  std::experimental::filesystem::path modelPath) {
 	return ImportTextureFromTGA(texturePath.string().c_str(),
 								modelPath.string().c_str(), &mdlfile);
 }
 
-bool mdlTextureExport(std::filesystem::path modelPath) {
+bool mdlTextureExport(std::experimental::filesystem::path modelPath) {
 	modelPath.replace_extension("");
 	std::string tgaFilename = modelPath.string();
 	if (totalSkins > 1) {
@@ -634,7 +634,7 @@ void reshape(int w, int h) {
 	glLoadIdentity();
 }
 
-void render(const std::filesystem::path modelPath, const int mode,
+void render(const std::experimental::filesystem::path modelPath, const int mode,
 			const bool paused, const bool lerpEnabled,
 			const bool filteringEnabled) {
 	static double curent_time = 0;

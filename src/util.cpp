@@ -25,7 +25,13 @@ along with this program.
 #define STB_IMAGE_IMPLEMENTATION
 #include "resources.h"
 #include "stb_image.h"
-#include "unistd.h"
+
+#ifdef _WIN32
+#include <io.h>
+#define access _access
+#else
+#include <unistd.h>
+#endif
 
 namespace QuakePrism {
 
@@ -164,6 +170,7 @@ bool ButtonCentered(const char *label) {
 
 bool CompileProject() {
 
+	/*** PMC ***
 	chdir((baseDirectory / "src").string().c_str());
 #ifdef _WIN32
 	bool result = system("fteqcc64.exe") != -1;
@@ -172,9 +179,12 @@ bool CompileProject() {
 #endif
 	chdir(baseDirectory.string().c_str());
 	return result;
+	***/
+	return false; // PMC
 }
 
 bool RunProject() {
+	/*** PMC ***
 	chdir(projectsDirectory.string().c_str());
 #ifdef _WIN32
 	std::string cmd = "quake.exe -game " + baseDirectory.filename().string();
@@ -185,20 +195,24 @@ bool RunProject() {
 #endif
 	chdir(baseDirectory.string().c_str());
 	return result;
+	***/
+	return false; // PMC
 }
 
 void CreateFile(const char *filename) {
-	if (!std::filesystem::exists(baseDirectory / "src" / filename)) {
+	if (!std::experimental::filesystem::exists(baseDirectory / "src" / filename)) {
+		/*** PMC ***
 		chdir((baseDirectory / "src").string().c_str());
 		std::string s = filename;
 		s += ".qc";
 		std::ofstream{s};
+		***/
 	}
 }
 
 void CreateFolder(const char *dirname) {
-	if (!std::filesystem::exists(baseDirectory / "src" / dirname))
-		std::filesystem::create_directory(baseDirectory / "src" / dirname);
+	if (!std::experimental::filesystem::exists(baseDirectory / "src" / dirname))
+		std::experimental::filesystem::create_directory(baseDirectory / "src" / dirname);
 }
 
 } // namespace QuakePrism
