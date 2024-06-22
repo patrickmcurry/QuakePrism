@@ -13,3 +13,8 @@ theme.o
 .cache
 build
 QuakePrism
+# For Windows / Visual Studio
+src/Debug*
+.vs*
+.vscode*
+*.vcxproj.user
