@@ -83,20 +83,20 @@ class FileBrowser {
 
 	// set current browsing directory
 	bool
-	SetPwd(const std::experimental::filesystem::path &pwd = std::experimental::filesystem::current_path());
+	SetPwd(const std::filesystem::path &pwd = std::filesystem::current_path());
 
 	// get current browsing directory
-	const std::experimental::filesystem::path &GetPwd() const noexcept;
+	const std::filesystem::path &GetPwd() const noexcept;
 
 	// returns selected filename. make sense only when HasSelected returns true
 	// when ImGuiFileBrowserFlags_MultipleSelection is enabled, only one of
 	// selected filename will be returned
-	std::experimental::filesystem::path GetSelected() const;
+	std::filesystem::path GetSelected() const;
 
 	// returns all selected filenames.
 	// when ImGuiFileBrowserFlags_MultipleSelection is enabled, use this
 	// instead of GetSelected
-	std::vector<std::experimental::filesystem::path> GetMultiSelected() const;
+	std::vector<std::filesystem::path> GetMultiSelected() const;
 
 	// set selected filename to empty
 	void ClearSelected();
@@ -125,18 +125,18 @@ class FileBrowser {
 
 	struct FileRecord {
 		bool isDir = false;
-		std::experimental::filesystem::path name;
+		std::filesystem::path name;
 		std::string showName;
-		std::experimental::filesystem::path extension;
+		std::filesystem::path extension;
 	};
 
 	static std::string ToLower(const std::string &s);
 
 	void UpdateFileRecords();
 
-	void SetPwdUncatched(const std::experimental::filesystem::path &pwd);
+	void SetPwdUncatched(const std::filesystem::path &pwd);
 
-	bool IsExtensionMatched(const std::experimental::filesystem::path &extension) const;
+	bool IsExtensionMatched(const std::filesystem::path &extension) const;
 
 	void ClearRangeSelectionState();
 
@@ -172,8 +172,8 @@ class FileBrowser {
 	unsigned int typeFilterIndex_;
 	bool hasAllFilter_;
 
-	std::experimental::filesystem::path pwd_;
-	std::set<std::experimental::filesystem::path> selectedFilenames_;
+	std::filesystem::path pwd_;
+	std::set<std::filesystem::path> selectedFilenames_;
 	unsigned int
 		rangeSelectionStart_; // enable range selection when shift is pressed
 
@@ -206,7 +206,7 @@ inline ImGui::FileBrowser::FileBrowser(ImGuiFileBrowserFlags flags)
 	inputNameBuf_->front() = '\0';
 	inputNameBuf_->back() = '\0';
 	SetTitle("Open Project Directory");
-	SetPwd(std::experimental::filesystem::current_path());
+	SetPwd(std::filesystem::current_path());
 
 	typeFilters_.clear();
 	typeFilterIndex_ = 0;
@@ -305,7 +305,6 @@ inline void ImGui::FileBrowser::Close() {
 inline bool ImGui::FileBrowser::IsOpened() const noexcept { return isOpened_; }
 
 inline void ImGui::FileBrowser::Display() {
-	/*** PMC ***
 	PushID(this);
 	ScopeGuard exitThis([this] {
 		openFlag_ = false;
@@ -404,7 +403,7 @@ inline void ImGui::FileBrowser::Display() {
 
 	if (newPwdLastSecIdx >= 0) {
 		int i = 0;
-		std::experimental::filesystem::path newPwd;
+		std::filesystem::path newPwd;
 		for (const auto &sec : pwd_) {
 			if (i++ > newPwdLastSecIdx) {
 				break;
@@ -426,7 +425,7 @@ inline void ImGui::FileBrowser::Display() {
 	if (SmallButton("*")) {
 		UpdateFileRecords();
 
-		std::set<std::experimental::filesystem::path> newSelectedFilenames;
+		std::set<std::filesystem::path> newSelectedFilenames;
 		for (auto &name : selectedFilenames_) {
 			auto it = std::find_if(
 				fileRecords_.begin(), fileRecords_.end(),
@@ -471,7 +470,7 @@ inline void ImGui::FileBrowser::Display() {
 	// browse files in a child window
 
 	float reserveHeight = GetFrameHeightWithSpacing();
-	std::experimental::filesystem::path newPwd;
+	std::filesystem::path newPwd;
 	bool setNewPwd = false;
 	if (!(flags_ & ImGuiFileBrowserFlags_SelectDirectory) &&
 		(flags_ & ImGuiFileBrowserFlags_EnterNewFilename))
@@ -663,12 +662,11 @@ inline void ImGui::FileBrowser::Display() {
 		}
 		PopItemWidth();
 	}
-	***/
 }
 
 inline bool ImGui::FileBrowser::HasSelected() const noexcept { return ok_; }
 
-inline bool ImGui::FileBrowser::SetPwd(const std::experimental::filesystem::path &pwd) {
+inline bool ImGui::FileBrowser::SetPwd(const std::filesystem::path &pwd) {
 	try {
 		SetPwdUncatched(pwd);
 		return true;
@@ -678,16 +676,16 @@ inline bool ImGui::FileBrowser::SetPwd(const std::experimental::filesystem::path
 		statusStr_ = "last error: unknown";
 	}
 
-	SetPwdUncatched(std::experimental::filesystem::current_path());
+	SetPwdUncatched(std::filesystem::current_path());
 	return false;
 }
 
-inline const class std::experimental::filesystem::path &
+inline const class std::filesystem::path &
 ImGui::FileBrowser::GetPwd() const noexcept {
 	return pwd_;
 }
 
-inline std::experimental::filesystem::path ImGui::FileBrowser::GetSelected() const {
+inline std::filesystem::path ImGui::FileBrowser::GetSelected() const {
 	// when ok_ is true, selectedFilenames_ may be empty if SelectDirectory
 	// is enabled. return pwd in that case.
 	if (selectedFilenames_.empty()) {
@@ -696,13 +694,13 @@ inline std::experimental::filesystem::path ImGui::FileBrowser::GetSelected() con
 	return pwd_ / *selectedFilenames_.begin();
 }
 
-inline std::vector<std::experimental::filesystem::path>
+inline std::vector<std::filesystem::path>
 ImGui::FileBrowser::GetMultiSelected() const {
 	if (selectedFilenames_.empty()) {
 		return {pwd_};
 	}
 
-	std::vector<std::experimental::filesystem::path> ret;
+	std::vector<std::filesystem::path> ret;
 	ret.reserve(selectedFilenames_.size());
 	for (auto &s : selectedFilenames_) {
 		ret.push_back(pwd_ / s);
@@ -794,10 +792,9 @@ inline std::string ImGui::FileBrowser::ToLower(const std::string &s) {
 }
 
 inline void ImGui::FileBrowser::UpdateFileRecords() {
-	/*** PMC ***
 	fileRecords_ = {FileRecord{true, "..", "[D] ..", ""}};
 
-	for (auto &p : std::experimental::filesystem::directory_iterator(pwd_)) {
+	for (auto &p : std::filesystem::directory_iterator(pwd_)) {
 		FileRecord rcd;
 
 		if (p.is_regular_file()) {
@@ -827,11 +824,10 @@ inline void ImGui::FileBrowser::UpdateFileRecords() {
 			  });
 
 	ClearRangeSelectionState();
-	***/
 }
 
 inline void
-ImGui::FileBrowser::SetPwdUncatched(const std::experimental::filesystem::path &pwd) {
+ImGui::FileBrowser::SetPwdUncatched(const std::filesystem::path &pwd) {
 	pwd_ = absolute(pwd);
 	UpdateFileRecords();
 	selectedFilenames_.clear();
@@ -839,9 +835,9 @@ ImGui::FileBrowser::SetPwdUncatched(const std::experimental::filesystem::path &p
 }
 
 inline bool ImGui::FileBrowser::IsExtensionMatched(
-	const std::experimental::filesystem::path &_extension) const {
+	const std::filesystem::path &_extension) const {
 #ifdef _WIN32
-	std::experimental::filesystem::path extension =
+	std::filesystem::path extension =
 		ToLower(u8StrToStr(_extension.u8string()));
 #else
 	auto &extension = _extension;

@@ -81,16 +81,16 @@ void RenderFrameItp(int n, float interp, const int mode,
 
 void Animate(int start, int end, int *frame, float *interp);
 
-bool mdlTextureImport(std::experimental::filesystem::path texturePath,
-					  std::experimental::filesystem::path modelPath);
+bool mdlTextureImport(std::filesystem::path texturePath,
+					  std::filesystem::path modelPath);
 
-bool mdlTextureExport(std::experimental::filesystem::path modelPath);
+bool mdlTextureExport(std::filesystem::path modelPath);
 
 void cleanup();
 
 void reshape(int w, int h);
 
-void render(const std::experimental::filesystem::path modelPath, const int mode,
+void render(const std::filesystem::path modelPath, const int mode,
 			const bool paused, const bool lerpEnabled,
 			const bool filteringEnabled);
 } // namespace QuakePrism::MDL

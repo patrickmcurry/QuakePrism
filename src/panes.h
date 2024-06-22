@@ -39,7 +39,7 @@ void DrawErrorPopup();
 
 void DrawAboutPopup();
 
-void DrawFileTree(const std::experimental::filesystem::path &currentPath);
+void DrawFileTree(const std::filesystem::path &currentPath);
 
 void DrawFileExplorer();
 

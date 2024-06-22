@@ -51,15 +51,15 @@ extern GLuint libreCard;
 extern std::vector<TextEditor> editorList;
 
 // Config Assets
-extern std::experimental::filesystem::path configFile;
-extern std::experimental::filesystem::path projectsDirectory;
+extern std::filesystem::path configFile;
+extern std::filesystem::path projectsDirectory;
 
 // Essential Paths
-extern std::vector<std::experimental::filesystem::path> currentQCFileNames;
-extern std::experimental::filesystem::path currentModelName;
-extern std::experimental::filesystem::path currentTextureName;
-extern std::experimental::filesystem::path baseDirectory;
-extern std::experimental::filesystem::path executingDirectory;
+extern std::vector<std::filesystem::path> currentQCFileNames;
+extern std::filesystem::path currentModelName;
+extern std::filesystem::path currentTextureName;
+extern std::filesystem::path baseDirectory;
+extern std::filesystem::path executingDirectory;
 
 void loadIcons();
 

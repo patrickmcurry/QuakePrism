@@ -200,7 +200,7 @@ bool RunProject() {
 }
 
 void CreateFile(const char *filename) {
-	if (!std::experimental::filesystem::exists(baseDirectory / "src" / filename)) {
+	if (!std::filesystem::exists(baseDirectory / "src" / filename)) {
 		/*** PMC ***
 		chdir((baseDirectory / "src").string().c_str());
 		std::string s = filename;
@@ -211,8 +211,8 @@ void CreateFile(const char *filename) {
 }
 
 void CreateFolder(const char *dirname) {
-	if (!std::experimental::filesystem::exists(baseDirectory / "src" / dirname))
-		std::experimental::filesystem::create_directory(baseDirectory / "src" / dirname);
+	if (!std::filesystem::exists(baseDirectory / "src" / dirname))
+		std::filesystem::create_directory(baseDirectory / "src" / dirname);
 }
 
 } // namespace QuakePrism
