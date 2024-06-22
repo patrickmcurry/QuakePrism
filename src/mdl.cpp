@@ -182,7 +182,7 @@ float colorDistance(const GLubyte *color1, const unsigned char *color2) {
 }
 
 int findClosestColorIndex(const GLubyte *color) {
-	float minDistance = 0; // PMC = std::numeric_limits<float>::max();
+	float minDistance = std::numeric_limits<float>::infinity(); // PMC - was max();
 	int closestIndex = 0;
 
 	for (int i = 0; i < 256; ++i) {

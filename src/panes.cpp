@@ -548,7 +548,7 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 		std::vector<std::filesystem::directory_entry> files;
 
 		for (const auto &entry : directoryEntries) {
-			if (false) { // PMC entry.is_directory()) {
+			if (entry.is_directory()) {
 				directories.push_back(entry);
 			} else {
 				files.push_back(entry);
@@ -569,7 +569,6 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 			ImGui::PushID(filenameString.c_str());
 			GLuint icon;
 
-			/*** PMC ***
 			if (directoryEntry.is_directory()) {
 				icon = directoryIcon;
 			} else {
@@ -581,7 +580,6 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 					icon = fileIcon;
 				}
 			}
-			***/
 
 			bool node_open =
 				QuakePrism::ImageTreeNode(filenameString.c_str(), icon);
@@ -665,11 +663,9 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 			}
 
 			if (node_open) {
-				/*** PMC ***
 				if (directoryEntry.is_directory()) {
 					DrawFileTree(directoryEntry.path());
 				}
-				***/
 				ImGui::TreePop();
 			}
 
@@ -755,10 +751,8 @@ void DrawOpenProjectPopup() {
 		try {
 			for (auto &directoryEntry :
 				 std::filesystem::directory_iterator(projectsDirectory)) {
-				/*** PMC ***
 				if (directoryEntry.is_directory())
 					projectList.push_back(directoryEntry);
-				***/
 			}
 		} catch (const std::filesystem::filesystem_error &ex) {
 			isErrorOpen = true;
@@ -825,20 +819,16 @@ static bool CopyTemplate(const std::filesystem::path &source,
 		for (const auto &entry :
 			 std::filesystem::recursive_directory_iterator(source)) {
 			const auto &path = entry.path();
-			/*** PMC ***
 			auto relative_path = std::filesystem::relative(path, source);
 			auto dest = destination / relative_path;
-			***/
 
 			if (std::filesystem::is_directory(path)) {
-				// PMC // std::filesystem::create_directories(dest);
+				std::filesystem::create_directories(dest);
 			} else if (std::filesystem::is_regular_file(path) ||
 					   std::filesystem::is_symlink(path)) {
-				/*** PMC ***
 				std::filesystem::copy(
 					path, dest,
 					std::filesystem::copy_options::overwrite_existing);
-				***/
 			}
 		}
 
@@ -1083,15 +1073,13 @@ void DrawLauncherPopup() {
 #endif
 				const auto &path = entry.path();
 #ifdef _WIN32
-				/*** PMC ***
 				auto relative_path = std::filesystem::relative(
 					path, (executingDirectory / "res/templates/Windows"));
-				***/
 #else
 				auto relative_path = std::filesystem::relative(
 					path, (executingDirectory / "res/templates/Linux"));
 #endif
-				auto dest = projectsDirectory; // PMC  / relative_path;
+				auto dest = projectsDirectory / relative_path;
 
 				if (std::filesystem::is_directory(path)) {
 					std::filesystem::create_directories(dest);
